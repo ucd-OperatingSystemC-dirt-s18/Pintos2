@@ -7,6 +7,7 @@
 ---- GROUP ----
 
 Christina Tsui christina.tsui@ucdenver.edu
+
 Dalton Burke dalton.burke@ucdenver.edu
 
 ---- PRELIMINARIES ----
