@@ -1,3 +1,5 @@
+/*The 80x86 is a segmented architecture. The Global Descrptor Table (GDT) is a table that describes the segement in use. These files set up the GDT. You should not need to modify these files for any of the project. You can read the code if you're interested in house the GDT works. */
+
 #ifndef USERPROG_GDT_H
 #define USERPROG_GDT_H
 
@@ -13,3 +15,5 @@
 void gdt_init (void);
 
 #endif /* userprog/gdt.h */
+
+

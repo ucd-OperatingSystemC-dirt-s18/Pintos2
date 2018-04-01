@@ -1,3 +1,6 @@
+/* A simple manager for 80x86 hardware page tables. Although you probably won't want to modify this code for this project, you may want to call some of its functions. See section 4.1.2.3[Page Tables], page 40, for more information.*/
+
+
 #ifndef USERPROG_PAGEDIR_H
 #define USERPROG_PAGEDIR_H
 

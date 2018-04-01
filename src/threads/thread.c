@@ -9,8 +9,8 @@
 #include "threads/intr-stubs.h"
 #include "threads/palloc.h"
 #include "threads/switch.h"
-#include "threads/synch.h"
 #include "threads/vaddr.h"
+#include "threads/malloc.h"
 #ifdef USERPROG
 #include "userprog/process.h"
 #endif
@@ -26,7 +26,7 @@ static struct list ready_list;
 
 /* List of all processes.  Processes are added to this list
    when they are first scheduled and removed when they exit. */
-static struct list all_list;
+struct list all_list;
 
 /* Idle thread. */
 static struct thread *idle_thread;
@@ -36,6 +36,19 @@ static struct thread *initial_thread;
 
 /* Lock used by allocate_tid(). */
 static struct lock tid_lock;
+
+
+/* Acquire and Release functions for file_lock */
+void file_lock_acquire()
+{
+	lock_acquire(&file_lock);
+}
+
+void file_lock_release()
+{
+	lock_release(&file_lock);
+}
+
 
 /* Stack frame for kernel_thread(). */
 struct kernel_thread_frame 
@@ -92,6 +105,9 @@ thread_init (void)
   lock_init (&tid_lock);
   list_init (&ready_list);
   list_init (&all_list);
+
+  // ADDED BY STEFANI MOORE
+  lock_init(&file_lock);
 
   /* Set up a thread structure for the running thread. */
   initial_thread = running_thread ();
@@ -171,6 +187,7 @@ thread_create (const char *name, int priority,
   struct switch_entry_frame *ef;
   struct switch_threads_frame *sf;
   tid_t tid;
+  enum intr_level old_level;
 
   ASSERT (function != NULL);
 
@@ -182,6 +199,15 @@ thread_create (const char *name, int priority,
   /* Initialize thread. */
   init_thread (t, name, priority);
   tid = t->tid = allocate_tid ();
+
+  /* ADDED BY STEFANI MOORE & SHAWN JOHNSON */
+  struct child_parent *c = malloc(sizeof(struct child_parent));
+  c->tid = tid;
+  c->exit_code = t->exit_code;
+  c->has_exited = false;
+  list_push_back (&running_thread ()->child_processes, &c->elem); // THIS MAY NEED TO BE `&t->child_processes`
+
+  old_level = intr_disable ();
 
   /* Stack frame for kernel_thread(). */
   kf = alloc_frame (t, sizeof *kf);
@@ -197,6 +223,8 @@ thread_create (const char *name, int priority,
   sf = alloc_frame (t, sizeof *sf);
   sf->eip = switch_entry;
   sf->ebp = 0;
+
+  intr_set_level (old_level);
 
   /* Add to run queue. */
   thread_unblock (t);
@@ -286,9 +314,13 @@ thread_exit (void)
   process_exit ();
 #endif
 
+	
+
   /* Remove thread from all threads list, set our status to dying,
      and schedule another process.  That process will destroy us
      when it calls thread_schedule_tail(). */
+
+	
   intr_disable ();
   list_remove (&thread_current()->allelem);
   thread_current ()->status = THREAD_DYING;
@@ -463,6 +495,13 @@ init_thread (struct thread *t, const char *name, int priority)
   t->stack = (uint8_t *) t + PGSIZE;
   t->priority = priority;
   t->magic = THREAD_MAGIC;
+
+  list_init (&t->child_processes);
+  list_init(&t->files);
+  t->parent = running_thread ();
+  t->fid_count = 2;
+  sema_init (&t->child_sema, 0);
+  t->waiting_on_thread = 0;
 
   old_level = intr_disable ();
   list_push_back (&all_list, &t->allelem);

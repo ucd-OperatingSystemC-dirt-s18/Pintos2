@@ -1,3 +1,5 @@
+/* When a user process performs a privileged or prohibited operation, it traps into the kernel as an "exception" or "fault." These files handle exceptions. Currently all exceptions simply print a message and terminate the process. Some, but not all, solutions to the project 2 require modifying page_fault() in this file. */
+
 #ifndef USERPROG_EXCEPTION_H
 #define USERPROG_EXCEPTION_H
 
