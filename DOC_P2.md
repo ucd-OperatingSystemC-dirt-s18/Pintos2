@@ -15,6 +15,7 @@ Dalton Burke dalton.burke@ucdenver.edu
 >> If you have any preliminary comments on your submission, notes for the
 >> TAs, or extra credit, please give them here.
 Passing 80/80 tests on the VM provided by the professor in the assignment details.
+After downloading from github,  you must unzip, then rename the folder pintos2-master to pintos. 
 
 >> Please cite any offline or online sources you consulted while
 >> preparing your submission, other than the Pintos documentation, course
